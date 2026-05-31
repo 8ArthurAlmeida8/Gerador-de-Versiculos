@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Versículos ARA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* ==========================================
+     GYD — Ghost Yt Downloader Palette Ported
+     Cat image — dark forest, sage green, warm brown
+     ========================================== */
+  :root {
+      --bg:          #0c0f0b;
+      --surface:     rgba(22, 28, 20, 0.85);
+      --surface-2:   rgba(32, 40, 28, 0.7);
+      --border:      rgba(162, 193, 136, 0.12);
+      --border-2:    rgba(162, 193, 136, 0.25);
+      --accent:      #8fb87a;
+      --accent-dim:  rgba(143, 184, 122, 0.15);
+      --accent-glow: rgba(143, 184, 122, 0.35);
+      --muted:       #4a5540;
+      --text:        #e8ede4;
+      --text-2:      #8a9e80;
+      --text-3:      #5a6e52;
+      --danger:      #e05555;
+      --success:     #5ec27a;
+      --radius-sm:   10px;
+      --radius-md:   18px;
+      --radius-lg:   26px;
+      --shadow-card: 0 24px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+
+  button {
+      appearance: none;
+      -webkit-appearance: none;
+      font-family: inherit;
+      border: none;
+      outline: none;
+      background: none;
+  }
+
+  body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      position: relative;
+      overflow-x: hidden;
+  }
+
+  body::before {
+      content: '';
+      position: fixed;
+      width: 700px;
+      height: 700px;
+      top: -180px;
+      left: -200px;
+      background: radial-gradient(circle, rgba(100, 140, 80, 0.18) 0%, transparent 70%);
+      z-index: 0;
+      pointer-events: none;
+  }
+
+  body::after {
+      content: '';
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      bottom: -150px;
+      right: -180px;
+      background: radial-gradient(circle, rgba(60, 40, 25, 0.22) 0%, transparent 70%);
+      z-index: 0;
+      pointer-events: none;
+  }
+
+  /* Grid scan-line texture */
+  .texture-overlay {
+      position: fixed;
+      inset: 0;
+      background-image:
+          radial-gradient(circle at 25% 10%, rgba(100, 140, 80, 0.18) 0%, transparent 55%),
+          radial-gradient(circle at 80% 85%, rgba(60, 40, 25, 0.22) 0%, transparent 55%);
+      z-index: 0;
+      pointer-events: none;
+  }
+
+  .container { width: 100%; max-width: 820px; position: relative; z-index: 1; }
+
+  .header { text-align: center; margin-bottom: 2rem; position: relative; }
+  .header h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #ddefd4 0%, #8fb87a 60%, #b8c89e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.6rem;
+      line-height: 1.1;
+  }
+  .header p { color: var(--text-2); font-size: 0.95rem; line-height: 1.6; max-width: 500px; margin: 0 auto 1rem; }
+
+  .version-pills {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+  }
+  .vpill {
+      padding: 0.4rem 1.1rem;
+      border-radius: 100px;
+      border: 1px solid rgba(143, 184, 122, 0.25);
+      background: rgba(143, 184, 122, 0.08);
+      color: var(--text-2);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.2s;
+  }
+  .vpill:hover { background: rgba(143, 184, 122, 0.18); color: var(--accent); border-color: var(--accent); }
+  .vpill.active {
+      background: var(--accent);
+      color: #0f1a0b;
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(143, 184, 122, 0.3);
+  }
+
+  .card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: var(--shadow-card);
+      position: relative;
+      margin-bottom: 1rem;
+      animation: fadeUp 0.4s ease;
+  }
+  .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(162, 193, 136, 0.4), transparent);
+  }
+
+  .card-selects {
+      display: grid;
+      grid-template-columns: 1.7fr 0.7fr 0.7fr 0.7fr auto;
+      gap: 0.8rem;
+      align-items: end;
+      margin-bottom: 1rem;
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 0.75rem; font-weight: 600; color: var(--text-3); letter-spacing: 0.08em; text-transform: uppercase; }
+  
+  /* Custom Select Component */
+  .custom-select { position: relative; width: 100%; font-size: 0.9rem; color: var(--text); user-select: none; z-index: 10; }
+  .custom-select.open { z-index: 20; }
+  .select-trigger {
+      padding: 0.8rem 1rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s;
+  }
+  .select-trigger:hover, .custom-select.open .select-trigger { border-color: var(--accent); background: rgba(255, 255, 255, 0.1); }
+  .select-trigger svg { transition: transform 0.2s; opacity: 0.7; }
+  .custom-select.open .select-trigger svg { transform: rotate(180deg); }
+  .select-dropdown {
+      position: absolute; top: 100%; left: 0; right: 0; margin-top: 0.4rem;
+      background: #121710; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      z-index: 100; display: none; flex-direction: column; overflow: hidden;
+  }
+  .custom-select.open .select-dropdown { display: flex; animation: fadeDown 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+  .select-search { padding: 0.5rem; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.2); }
+  .select-search input {
+      width: 100%; padding: 0.6rem; background: rgba(0,0,0,0.4);
+      border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text); font-size: 0.85rem; outline: none; transition: border-color 0.2s;
+  }
+  .select-search input:focus { border-color: var(--accent); }
+  .select-options { max-height: 220px; overflow-y: auto; }
+  .select-option { padding: 0.7rem 1rem; cursor: pointer; transition: background 0.15s; font-weight: 500; }
+  .select-option:hover { background: var(--accent-dim); color: var(--accent); }
+  .select-option.selected { background: var(--accent-dim); color: var(--accent); font-weight: 700; border-left: 2px solid var(--accent); }
+  
+  .select-options::-webkit-scrollbar { width: 6px; }
+  .select-options::-webkit-scrollbar-track { background: transparent; }
+  .select-options::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+
+  .btn-rm {
+      width: auto;
+      padding: 0.8rem 1.2rem;
+      background: rgba(224, 85, 85, 0.15);
+      color: var(--danger);
+      border: 1px solid rgba(224, 85, 85, 0.4);
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+  }
+  .btn-rm:hover { background: rgba(224, 85, 85, 0.25); }
+
+  .ref-label { font-size: 0.9rem; font-weight: 700; color: var(--accent); margin-bottom: 1rem; }
+
+  .verses-area { display: flex; flex-direction: column; gap: 0.8rem; }
+  .verse-row { display: flex; gap: 0.8rem; align-items: flex-start; }
+  .vnum { font-size: 0.8rem; font-weight: 700; color: var(--text-2); min-width: 24px; padding-top: 0.7rem; text-align: right; }
+  .vtext {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      padding: 0.8rem 1rem;
+      min-height: 60px;
+      resize: vertical;
+      transition: border-color 0.2s;
+  }
+  .vtext:focus { border-color: var(--accent); outline: none; }
+  .vtext.loading { opacity: 0.6; font-style: italic; }
+  .vtext.error-text { border-color: rgba(224, 85, 85, 0.4); color: var(--danger); }
+
+  .toolbar { display: flex; gap: 1rem; margin-bottom: 2rem; align-items: center; flex-wrap: wrap; }
+  
+  .btn-add {
+      background: rgba(143, 184, 122, 0.15);
+      border: 1px solid rgba(143, 184, 122, 0.3);
+      color: var(--accent);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.25s;
+  }
+  .btn-add:hover {
+      background: rgba(143, 184, 122, 0.25);
+      border-color: var(--accent);
+      color: #fff;
+      transform: translateY(-2px);
+  }
+  .btn-add svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2.5; }
+
+  .btn-gen {
+      background: linear-gradient(135deg, #8fb87a 0%, #6a9a55 100%);
+      color: #0f1a0b;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 0.85rem 2rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
+      margin-left: auto;
+      box-shadow: 0 4px 12px rgba(143, 184, 122, 0.2);
+  }
+  .btn-gen:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px -8px var(--accent-glow);
+  }
+
+  .result-section {
+      display: none;
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-card);
+      animation: fadeUp 0.4s ease;
+  }
+  .result-section.on { display: block; }
+  
+  .result-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+  .result-header span { font-size: 0.85rem; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.05em; }
+  
+  .result-actions { display: flex; gap: 0.6rem; }
+  .btn-copy, .btn-download {
+      background: rgba(143, 184, 122, 0.15);
+      border: 1px solid rgba(143, 184, 122, 0.3);
+      border-radius: var(--radius-sm);
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+  }
+  .btn-copy:hover, .btn-download:hover { background: rgba(143, 184, 122, 0.25); color: #fff; border-color: var(--accent); }
+  .btn-download svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; }
+
+  .result-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1.2rem;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      color: var(--text);
+      word-break: break-word;
+  }
+
+  .status-bar { font-size: 0.8rem; color: var(--text-3); font-weight: 500; margin-top: 0.5rem; min-height: 1.2rem; }
+  .status-bar.err { color: var(--danger); }
+  
+  .loading-overlay {
+      position: fixed; inset: 0;
+      background: rgba(12, 15, 11, 0.9);
+      backdrop-filter: blur(10px);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 1000;
+  }
+  .loading-overlay h2 { font-size: 1.2rem; font-weight: 700; color: var(--accent); margin-bottom: 1.5rem; }
+  .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid var(--border-2);
+      border-top: 3px solid var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+  }
+
+  .footer-note {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      width: 100%;
+      max-width: 820px;
+      z-index: 1;
+  }
+  .credits {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+  }
+  .github-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.3rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-2);
+      border-radius: 100px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.25s;
+      letter-spacing: 0.01em;
+  }
+  .github-btn:hover {
+      background: rgba(143, 184, 122, 0.1);
+      border-color: var(--border-2);
+      color: var(--accent);
+      transform: translateY(-2px);
+  }
+  .github-btn svg { opacity: 0.7; transition: opacity 0.2s; }
+  .github-btn:hover svg { opacity: 1; }
+
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media(max-width: 600px) {
+      .card-selects { grid-template-columns: 1fr 1fr; }
+      .card-selects .btn-rm { grid-column: span 2; }
+      .header h1 { font-size: 1.8rem; }
+  }
+
+  /* Modal Tutorial */
+  .modal-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      animation: fadeIn 0.2s ease;
+  }
+  .modal-backdrop.open { display: flex; }
+  .modal {
+      background: #161c14;
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      max-width: 560px;
+      width: 100%;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+      position: relative;
+      animation: fadeUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .modal::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(143, 184, 122, 0.5), transparent);
+  }
+  .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+  }
+  .modal-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ddefd4 0%, #8fb87a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+  }
+  .modal-close {
+      width: 32px; height: 32px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 50%;
+      color: var(--text-2);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      line-height: 1;
+  }
+  .modal-close:hover { background: rgba(224,85,85,0.15); color: var(--danger); border-color: rgba(224,85,85,0.3); }
+  .modal-steps { display: flex; flex-direction: column; gap: 1rem; }
+  .step {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 1rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      transition: border-color 0.2s;
+  }
+  .step:hover { border-color: var(--border-2); }
+  .step-num {
+      min-width: 28px; height: 28px;
+      background: var(--accent);
+      color: #0f1a0b;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+      flex-shrink: 0;
+  }
+  .step-content { flex: 1; }
+  .step-content strong { display: block; font-size: 0.9rem; color: var(--text); margin-bottom: 0.3rem; }
+  .step-content p { font-size: 0.83rem; color: var(--text-2); line-height: 1.6; margin: 0; }
+  .step-content code {
+      background: rgba(143, 184, 122, 0.12);
+      border: 1px solid rgba(143, 184, 122, 0.2);
+      border-radius: 4px;
+      padding: 0.1em 0.4em;
+      font-size: 0.82rem;
+      color: var(--accent);
+      font-family: monospace;
+  }
+
+  .btn-tutorial {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-2);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1.4rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.25s;
+  }
+  .btn-tutorial:hover { background: rgba(255,255,255,0.1); color: var(--text); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); }
+  .btn-tutorial svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 2; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+</style>
+</head>
+<body>
+<div class="texture-overlay"></div>
+
+<div id="loading" class="loading-overlay">
+  <div class="spinner"></div>
+  <h2 style="margin-top: 1rem;">Carregando Bíblia ARA...</h2>
+</div>
+
+<!-- Modal Tutorial -->
+<div class="modal-backdrop" id="modal-tutorial" onclick="fecharModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">📚 Como usar no Holyrics</span>
+      <button class="modal-close" onclick="document.getElementById('modal-tutorial').classList.remove('open')">&times;</button>
+    </div>
+    <div class="modal-steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <strong>Crie uma música no Holyrics</strong>
+          <p>Abra o Holyrics e crie uma nova música. Sugestão de nome: <code>Versículos</code> (ou o nome do versículo que você usará).</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <strong>Defina o fundo como Bíblia</strong>
+          <p>Nas configurações da música, selecione o tipo de fundo <code>Bíblia</code>. Isso garante que o texto será exibido no layout correto para versículos.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <strong>Gere os versículos aqui</strong>
+          <p>No Gerador, escolha a versão da Bíblia, selecione o livro, capítulo e versículos desejados. Adicione quantos blocos precisar e clique em <code>Gerar Resultado</code>.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <strong>Copie o resultado</strong>
+          <p>Clique em <code>Copiar Tudo</code> ou <code>Baixar .txt</code> para salvar o texto gerado. Cada bloco já vem formatado com a referência (ex: <code>João 3:16</code>) seguida do texto do versículo.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <strong>Cole na letra da música</strong>
+          <p>Volte ao Holyrics, abra a música criada e cole o texto copiado no campo de <code>letra</code>. Pronto! O versículo aparecerá formatado na apresentação.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="display: none;" id="main-container">
+  <div class="header">
+    <h1>Gerador de Versículos</h1>
+    <p>Formato Holyrics · Selecione uma versão da Bíblia</p>
+    <div class="version-pills" id="version-pills">
+      <button class="vpill active" data-version="ARA" onclick="trocarVersao('ARA', this)">ARA</button>
+      <button class="vpill" data-version="ACF" onclick="trocarVersao('ACF', this)">ACF</button>
+      <button class="vpill" data-version="NVI" onclick="trocarVersao('NVI', this)">NVI</button>
+      <button class="vpill" data-version="NVT" onclick="trocarVersao('NVT', this)">NVT</button>
+    </div>
+  </div>
+
+  <div id="lista"></div>
+
+  <div class="toolbar">
+    <button class="btn-add" onclick="addCard()">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Adicionar Versículo
+    </button>
+    <button class="btn-tutorial" onclick="document.getElementById('modal-tutorial').classList.add('open')">
+      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Tutorial
+    </button>
+    <button class="btn-gen" id="btn-gen" onclick="gerar()">Gerar Resultado</button>
+  </div>
+
+  <div class="result-section" id="result-sec">
+    <div class="result-header">
+      <span>Resultado Formatado</span>
+      <div class="result-actions">
+        <button class="btn-copy" onclick="copiar()">Copiar Tudo</button>
+        <button class="btn-download" onclick="baixarTxt()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+          Baixar .txt
+        </button>
+      </div>
+    </div>
+    <div class="result-box" id="result-box"></div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer-note" style="display: none;" id="footer-container">
+    <div class="credits">
+        <a href="https://github.com/8ArthurAlmeida8" target="_blank" class="github-btn">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+            </svg>
+            8ArthurAlmeida8
+        </a>
+    </div>
+</div>
+
+<script>
+const LIVROS = [
+  {nome:"Gênesis",abbrev:"gn",cap:50},{nome:"Êxodo",abbrev:"ex",cap:40},{nome:"Levítico",abbrev:"lv",cap:27},
+  {nome:"Números",abbrev:"nm",cap:36},{nome:"Deuteronômio",abbrev:"dt",cap:34},{nome:"Josué",abbrev:"js",cap:24},
+  {nome:"Juízes",abbrev:"jz",cap:21},{nome:"Rute",abbrev:"rt",cap:4},{nome:"1 Samuel",abbrev:"1sm",cap:31},
+  {nome:"2 Samuel",abbrev:"2sm",cap:24},{nome:"1 Reis",abbrev:"1rs",cap:22},{nome:"2 Reis",abbrev:"2rs",cap:25},
+  {nome:"1 Crônicas",abbrev:"1cr",cap:29},{nome:"2 Crônicas",abbrev:"2cr",cap:36},{nome:"Esdras",abbrev:"ed",cap:10},
+  {nome:"Neemias",abbrev:"ne",cap:13},{nome:"Ester",abbrev:"et",cap:10},{nome:"Jó",abbrev:"jo_at",cap:42},
+  {nome:"Salmos",abbrev:"sl",cap:150},{nome:"Provérbios",abbrev:"pv",cap:31},{nome:"Eclesiastes",abbrev:"ec",cap:12},
+  {nome:"Cânticos",abbrev:"ct",cap:8},{nome:"Isaías",abbrev:"is",cap:66},{nome:"Jeremias",abbrev:"jr",cap:52},
+  {nome:"Lamentações",abbrev:"lm",cap:5},{nome:"Ezequiel",abbrev:"ez",cap:48},{nome:"Daniel",abbrev:"dn",cap:12},
+  {nome:"Oseias",abbrev:"os",cap:14},{nome:"Joel",abbrev:"jl",cap:3},{nome:"Amós",abbrev:"am",cap:9},
+  {nome:"Obadias",abbrev:"ob",cap:1},{nome:"Jonas",abbrev:"jn",cap:4},{nome:"Miquéias",abbrev:"mq",cap:7},
+  {nome:"Naum",abbrev:"na",cap:3},{nome:"Habacuque",abbrev:"hc",cap:3},{nome:"Sofonias",abbrev:"sf",cap:3},
+  {nome:"Ageu",abbrev:"ag",cap:2},{nome:"Zacarias",abbrev:"zc",cap:14},{nome:"Malaquias",abbrev:"ml",cap:4},
+  {nome:"Mateus",abbrev:"mt",cap:28},{nome:"Marcos",abbrev:"mc",cap:16},{nome:"Lucas",abbrev:"lc",cap:24},
+  {nome:"João",abbrev:"jo",cap:21},{nome:"Atos",abbrev:"at",cap:28},{nome:"Romanos",abbrev:"rm",cap:16},
+  {nome:"1 Coríntios",abbrev:"1co",cap:16},{nome:"2 Coríntios",abbrev:"2co",cap:13},{nome:"Gálatas",abbrev:"gl",cap:6},
+  {nome:"Efésios",abbrev:"ef",cap:6},{nome:"Filipenses",abbrev:"fp",cap:4},{nome:"Colossenses",abbrev:"cl",cap:4},
+  {nome:"1 Tessalonicenses",abbrev:"1ts",cap:5},{nome:"2 Tessalonicenses",abbrev:"2ts",cap:3},
+  {nome:"1 Timóteo",abbrev:"1tm",cap:6},{nome:"2 Timóteo",abbrev:"2tm",cap:4},{nome:"Tito",abbrev:"tt",cap:3},
+  {nome:"Filemon",abbrev:"fm",cap:1},{nome:"Hebreus",abbrev:"hb",cap:13},{nome:"Tiago",abbrev:"tg",cap:5},
+  {nome:"1 Pedro",abbrev:"1pe",cap:5},{nome:"2 Pedro",abbrev:"2pe",cap:3},{nome:"1 João",abbrev:"1jo",cap:5},
+  {nome:"2 João",abbrev:"2jo",cap:1},{nome:"3 João",abbrev:"3jo",cap:1},{nome:"Judas",abbrev:"jd",cap:1},
+  {nome:"Apocalipse",abbrev:"ap",cap:22}
+];
+
+let BIBLIA_DATA = null;
+let VERSAO_ATUAL = 'ARA';
+
+const VERSOES = {
+  'ARA': { url: 'https://raw.githubusercontent.com/damarals/biblias/main/inst/json/ARA.json', nome: 'Almeida Revista e Atualizada' },
+  'ACF': { url: 'https://raw.githubusercontent.com/damarals/biblias/main/inst/json/ACF.json', nome: 'Almeida Corrigida Fiel' },
+  'NVI': { url: 'https://raw.githubusercontent.com/damarals/biblias/main/inst/json/NVI.json', nome: 'Nova Versão Internacional' },
+  'NVT': { url: 'https://raw.githubusercontent.com/damarals/biblias/main/inst/json/NVT.json', nome: 'Nova Versão Transformadora' },
+};
+
+async function carregarBiblia(versao = 'ARA') {
+  const info = VERSOES[versao];
+  if (!info) return;
+  try {
+    const r = await fetch(info.url);
+    const data = await r.json();
+    BIBLIA_DATA = {};
+    data.forEach(livro => {
+      BIBLIA_DATA[livro.abbrev.toLowerCase()] = livro;
+    });
+    return BIBLIA_DATA;
+  } catch(e) {
+    alert('Erro ao carregar a versão ' + versao + '. Verifique sua conexão.');
+    throw e;
+  }
+}
+
+async function trocarVersao(versao, btn) {
+  if (versao === VERSAO_ATUAL) return;
+  // Atualiza botões
+  document.querySelectorAll('.vpill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // Mostra loading
+  const overlay = document.getElementById('loading');
+  document.getElementById('main-container').style.display = 'none';
+  document.getElementById('footer-container').style.display = 'none';
+  overlay.style.display = 'flex';
+  overlay.querySelector('h2').textContent = `Carregando ${VERSOES[versao].nome}...`;
+  VERSAO_ATUAL = versao;
+  BIBLIA_DATA = null;
+  // Limpa todos os cards
+  Object.keys(CARDS_STATE).forEach(id => delete CARDS_STATE[id]);
+  document.getElementById('lista').innerHTML = '';
+  document.getElementById('result-sec').classList.remove('on');
+  idN = 0;
+  await carregarBiblia(versao);
+  overlay.style.display = 'none';
+  document.getElementById('main-container').style.display = 'block';
+  document.getElementById('footer-container').style.display = 'block';
+  addCard();
+}
+
+carregarBiblia('ARA').then(() => {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('main-container').style.display = 'block';
+  document.getElementById('footer-container').style.display = 'block';
+  addCard();
+});
+
+// Fechar custom selects ao clicar fora
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.custom-select')) {
+    document.querySelectorAll('.custom-select').forEach(el => el.classList.remove('open'));
+  }
+});
+
+function fecharModal(e) {
+  if (e.target === e.currentTarget) {
+    e.currentTarget.classList.remove('open');
+  }
+}
+
+function renderCustomSelect(containerId, options, value, onChange, searchable = false) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  
+  const custom = document.createElement('div');
+  custom.className = 'custom-select';
+  
+  const selectedOpt = options.find(o => o.value == value) || options[0];
+  if (!selectedOpt) return;
+  
+  const trigger = document.createElement('div');
+  trigger.className = 'select-trigger';
+  trigger.innerHTML = `<span>${selectedOpt.label}</span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>`;
+  
+  const dropdown = document.createElement('div');
+  dropdown.className = 'select-dropdown';
+  
+  let searchInput = null;
+  if (searchable) {
+    const searchWrap = document.createElement('div');
+    searchWrap.className = 'select-search';
+    searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.placeholder = 'Pesquisar livro...';
+    searchWrap.appendChild(searchInput);
+    dropdown.appendChild(searchWrap);
+  }
+  
+  const optsWrap = document.createElement('div');
+  optsWrap.className = 'select-options';
+  
+  const renderOpts = (filter = '') => {
+    optsWrap.innerHTML = '';
+    
+    // Normalizar string pra pesquisa tirando acentos
+    const normalize = str => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const filterNorm = normalize(filter);
+
+    options.forEach(opt => {
+      if (filter && !normalize(opt.label).includes(filterNorm)) return;
+      
+      const optDiv = document.createElement('div');
+      optDiv.className = 'select-option' + (opt.value == value ? ' selected' : '');
+      optDiv.textContent = opt.label;
+      optDiv.onclick = (e) => {
+        e.stopPropagation();
+        custom.classList.remove('open');
+        if (value !== opt.value) {
+          onChange(opt.value);
+        }
+      };
+      optsWrap.appendChild(optDiv);
+    });
+  };
+  
+  renderOpts();
+  dropdown.appendChild(optsWrap);
+  custom.appendChild(trigger);
+  custom.appendChild(dropdown);
+  
+  trigger.onclick = (e) => {
+    e.stopPropagation();
+    const isOpen = custom.classList.contains('open');
+    document.querySelectorAll('.custom-select').forEach(el => el.classList.remove('open'));
+    if (!isOpen) {
+      custom.classList.add('open');
+      if (searchInput) {
+        searchInput.value = '';
+        renderOpts();
+        searchInput.focus();
+      } else {
+        // Scroll ate o selecionado
+        const selected = optsWrap.querySelector('.selected');
+        if (selected) {
+          optsWrap.scrollTop = selected.offsetTop - optsWrap.clientHeight / 2;
+        }
+      }
+    }
+  };
+  
+  if (searchInput) {
+    searchInput.oninput = (e) => renderOpts(e.target.value);
+    searchInput.onclick = (e) => e.stopPropagation();
+  }
+  
+  container.appendChild(custom);
+}
+
+
+let idN = 0;
+const CARDS_STATE = {};
+
+function addCard() {
+  idN++;
+  const id = 'c' + idN;
+  const lista = document.getElementById('lista');
+
+  const em = document.getElementById('empty-msg');
+  if (em) em.remove();
+
+  // Estado inicial
+  CARDS_STATE[id] = { livro: 0, cap: 1, vi: 1, vf: 1 };
+
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.id = id;
+  div.innerHTML = `
+    <div class="card-selects">
+      <div class="field">
+        <label>Livro</label>
+        <div id="L_${id}"></div>
+      </div>
+      <div class="field">
+        <label>Capítulo</label>
+        <div id="K_${id}"></div>
+      </div>
+      <div class="field">
+        <label>Vers. Inicial</label>
+        <div id="VI_${id}"></div>
+      </div>
+      <div class="field">
+        <label>Vers. Final</label>
+        <div id="VF_${id}"></div>
+      </div>
+      <div style="align-self:flex-end">
+        <button class="btn-rm" onclick="rmCard('${id}')">Remover</button>
+      </div>
+    </div>
+    <div class="ref-label" id="REF_${id}"></div>
+    <div class="verses-area" id="AREA_${id}"></div>
+    <div class="status-bar" id="STATUS_${id}"></div>
+  `;
+  lista.appendChild(div);
+  
+  updateCardSelects(id);
+}
+
+function rmCard(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+  delete CARDS_STATE[id];
+  if (document.querySelectorAll('.card').length === 0) showEmpty();
+}
+
+function showEmpty() {
+  const lista = document.getElementById('lista');
+  if (!document.getElementById('empty-msg')) {
+    const el = document.createElement('div');
+    el.id = 'empty-msg';
+    el.style.cssText = 'text-align:center;color:var(--text-3);font-size:0.95rem;padding:2rem';
+    el.textContent = 'Nenhum versículo adicionado. Clique em "Adicionar Versículo".';
+    lista.appendChild(el);
+  }
+}
+
+async function getVerseCount(abbrev, cap) {
+  let a = abbrev === "jo_at" ? "jó" : abbrev.toLowerCase();
+  let livro = BIBLIA_DATA[a];
+  if (!livro && a === "jó") livro = BIBLIA_DATA["jo"];
+  if (!livro) return 30;
+  const cap_data = livro.chapters[cap - 1];
+  return cap_data ? cap_data.length : 30;
+}
+
+function onLivro(id, val) {
+  CARDS_STATE[id].livro = val;
+  CARDS_STATE[id].cap = 1;
+  CARDS_STATE[id].vi = 1;
+  CARDS_STATE[id].vf = 1;
+  updateCardSelects(id);
+}
+function onCap(id, val) {
+  CARDS_STATE[id].cap = val;
+  CARDS_STATE[id].vi = 1;
+  CARDS_STATE[id].vf = 1;
+  updateCardSelects(id);
+}
+function onVi(id, val) {
+  CARDS_STATE[id].vi = val;
+  if (CARDS_STATE[id].vf < val) CARDS_STATE[id].vf = val;
+  updateCardSelects(id);
+}
+function onVf(id, val) {
+  CARDS_STATE[id].vf = val;
+  updateCardSelects(id);
+}
+
+async function updateCardSelects(id) {
+  const state = CARDS_STATE[id];
+  if (!state) return;
+  
+  const liv = LIVROS[state.livro];
+  const capCount = liv.cap;
+  const verseCount = await getVerseCount(liv.abbrev, state.cap);
+  
+  // Livro Options (searchable)
+  const livroOpts = LIVROS.map((l, i) => ({ value: i, label: l.nome }));
+  renderCustomSelect('L_' + id, livroOpts, state.livro, (v) => onLivro(id, v), true);
+  
+  // Cap Options
+  const capOpts = Array.from({length: capCount}, (_,i) => ({ value: i+1, label: (i+1).toString() }));
+  renderCustomSelect('K_' + id, capOpts, state.cap, (v) => onCap(id, v), false);
+  
+  // Verso Inicial Options
+  const viOpts = Array.from({length: verseCount}, (_,i) => ({ value: i+1, label: (i+1).toString() }));
+  renderCustomSelect('VI_' + id, viOpts, state.vi, (v) => onVi(id, v), false);
+  
+  // Verifica se VF não estourou
+  if (state.vf > verseCount) state.vf = verseCount;
+
+  // Verso Final Options
+  const vfOpts = Array.from({length: verseCount - state.vi + 1}, (_,i) => ({ value: state.vi+i, label: (state.vi+i).toString() }));
+  renderCustomSelect('VF_' + id, vfOpts, state.vf, (v) => onVf(id, v), false);
+  
+  // Update ref
+  const refStr = state.vf > state.vi
+    ? `${liv.nome} ${state.cap}:${state.vi}-${state.vf}`
+    : `${liv.nome} ${state.cap}:${state.vi}`;
+  
+  document.getElementById('REF_' + id).textContent = refStr;
+  buscarEPreencherVersiculos(id, liv.abbrev, state.cap, state.vi, state.vf);
+}
+
+async function buscarEPreencherVersiculos(id, abbrev, cap, vi, vf) {
+  const area = document.getElementById('AREA_' + id);
+  const status = document.getElementById('STATUS_' + id);
+
+  const textosSalvos = {};
+  area.querySelectorAll('.verse-row').forEach(row => {
+    const vnum = row.dataset.vnum;
+    const ta = row.querySelector('.vtext');
+    if (ta && !ta.classList.contains('loading')) {
+      textosSalvos[vnum] = ta.value;
+    }
+  });
+
+  area.innerHTML = '';
+  for (let v = vi; v <= vf; v++) {
+    const row = document.createElement('div');
+    row.className = 'verse-row';
+    row.dataset.vnum = v;
+    row.innerHTML = `<span class="vnum">${v}</span><textarea class="vtext loading" readonly>Buscando…</textarea>`;
+    area.appendChild(row);
+  }
+  status.textContent = 'Buscando versículos…';
+  status.className = 'status-bar';
+
+  try {
+    let a = abbrev === "jo_at" ? "jó" : abbrev.toLowerCase();
+    let livroData = BIBLIA_DATA[a];
+    if (!livroData && a === "jó") livroData = BIBLIA_DATA["jo"];
+    const capitulo = livroData.chapters[cap - 1];
+    
+    area.querySelectorAll('.verse-row').forEach(row => {
+      const vnum = parseInt(row.dataset.vnum);
+      const ta = row.querySelector('.vtext');
+      ta.classList.remove('loading');
+      ta.readOnly = false;
+      
+      if (textosSalvos[vnum] !== undefined) {
+        ta.value = textosSalvos[vnum];
+      } else {
+        const idx = vnum - 1;
+        ta.value = (capitulo && capitulo[idx]) ? capitulo[idx] : `[Versículo ${vnum} não encontrado]`;
+      }
+    });
+
+    status.textContent = `✓ Carregado com sucesso`;
+    setTimeout(() => { if (status) status.textContent = ''; }, 3000);
+
+  } catch (e) {
+    status.textContent = '⚠ Erro ao buscar os dados.';
+    status.className = 'status-bar err';
+  }
+}
+
+function gerar() {
+  const cards = document.querySelectorAll('.card');
+  if (cards.length === 0) { alert('Adicione ao menos um versículo.'); return; }
+
+  const blocos = [];
+
+  cards.forEach(card => {
+    const id = card.id;
+    const ref = document.getElementById('REF_' + id).textContent.trim();
+    if (!ref) return;
+
+    const rows = card.querySelectorAll('.verse-row');
+    const textos = [];
+    rows.forEach(row => {
+      const v = row.querySelector('.vtext').value.trim();
+      if (v && v !== 'Buscando…') textos.push(v);
+    });
+
+    const bloco = ref + '\n' + textos.join(' ');
+    blocos.push(bloco);
+  });
+
+  if (!blocos.length) return;
+
+  document.getElementById('result-box').textContent = blocos.join('\n\n');
+  const sec = document.getElementById('result-sec');
+  sec.classList.add('on');
+  sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copiar() {
+  const texto = document.getElementById('result-box').textContent;
+  navigator.clipboard.writeText(texto).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = texto;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+  const btn = document.querySelector('.btn-copy');
+  const orig = btn.innerHTML;
+  btn.textContent = 'Copiado!';
+  setTimeout(() => btn.innerHTML = orig, 2000);
+}
+
+function baixarTxt() {
+  const texto = document.getElementById('result-box').textContent;
+  if (!texto) return;
+  const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'versiculos_holyrics.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
