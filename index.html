@@ -620,29 +620,29 @@
 
 <script>
 const LIVROS = [
-  {nome:"Gênesis",abbrev:"gn",cap:50},{nome:"Êxodo",abbrev:"ex",cap:40},{nome:"Levítico",abbrev:"lv",cap:27},
-  {nome:"Números",abbrev:"nm",cap:36},{nome:"Deuteronômio",abbrev:"dt",cap:34},{nome:"Josué",abbrev:"js",cap:24},
-  {nome:"Juízes",abbrev:"jz",cap:21},{nome:"Rute",abbrev:"rt",cap:4},{nome:"1 Samuel",abbrev:"1sm",cap:31},
-  {nome:"2 Samuel",abbrev:"2sm",cap:24},{nome:"1 Reis",abbrev:"1rs",cap:22},{nome:"2 Reis",abbrev:"2rs",cap:25},
-  {nome:"1 Crônicas",abbrev:"1cr",cap:29},{nome:"2 Crônicas",abbrev:"2cr",cap:36},{nome:"Esdras",abbrev:"ed",cap:10},
-  {nome:"Neemias",abbrev:"ne",cap:13},{nome:"Ester",abbrev:"et",cap:10},{nome:"Jó",abbrev:"jo_at",cap:42},
-  {nome:"Salmos",abbrev:"sl",cap:150},{nome:"Provérbios",abbrev:"pv",cap:31},{nome:"Eclesiastes",abbrev:"ec",cap:12},
-  {nome:"Cânticos",abbrev:"ct",cap:8},{nome:"Isaías",abbrev:"is",cap:66},{nome:"Jeremias",abbrev:"jr",cap:52},
-  {nome:"Lamentações",abbrev:"lm",cap:5},{nome:"Ezequiel",abbrev:"ez",cap:48},{nome:"Daniel",abbrev:"dn",cap:12},
-  {nome:"Oseias",abbrev:"os",cap:14},{nome:"Joel",abbrev:"jl",cap:3},{nome:"Amós",abbrev:"am",cap:9},
-  {nome:"Obadias",abbrev:"ob",cap:1},{nome:"Jonas",abbrev:"jn",cap:4},{nome:"Miquéias",abbrev:"mq",cap:7},
-  {nome:"Naum",abbrev:"na",cap:3},{nome:"Habacuque",abbrev:"hc",cap:3},{nome:"Sofonias",abbrev:"sf",cap:3},
-  {nome:"Ageu",abbrev:"ag",cap:2},{nome:"Zacarias",abbrev:"zc",cap:14},{nome:"Malaquias",abbrev:"ml",cap:4},
-  {nome:"Mateus",abbrev:"mt",cap:28},{nome:"Marcos",abbrev:"mc",cap:16},{nome:"Lucas",abbrev:"lc",cap:24},
-  {nome:"João",abbrev:"jo",cap:21},{nome:"Atos",abbrev:"at",cap:28},{nome:"Romanos",abbrev:"rm",cap:16},
-  {nome:"1 Coríntios",abbrev:"1co",cap:16},{nome:"2 Coríntios",abbrev:"2co",cap:13},{nome:"Gálatas",abbrev:"gl",cap:6},
-  {nome:"Efésios",abbrev:"ef",cap:6},{nome:"Filipenses",abbrev:"fp",cap:4},{nome:"Colossenses",abbrev:"cl",cap:4},
-  {nome:"1 Tessalonicenses",abbrev:"1ts",cap:5},{nome:"2 Tessalonicenses",abbrev:"2ts",cap:3},
-  {nome:"1 Timóteo",abbrev:"1tm",cap:6},{nome:"2 Timóteo",abbrev:"2tm",cap:4},{nome:"Tito",abbrev:"tt",cap:3},
-  {nome:"Filemon",abbrev:"fm",cap:1},{nome:"Hebreus",abbrev:"hb",cap:13},{nome:"Tiago",abbrev:"tg",cap:5},
-  {nome:"1 Pedro",abbrev:"1pe",cap:5},{nome:"2 Pedro",abbrev:"2pe",cap:3},{nome:"1 João",abbrev:"1jo",cap:5},
-  {nome:"2 João",abbrev:"2jo",cap:1},{nome:"3 João",abbrev:"3jo",cap:1},{nome:"Judas",abbrev:"jd",cap:1},
-  {nome:"Apocalipse",abbrev:"ap",cap:22}
+  {nome:"Gênesis",abbrev:"Gn",cap:50},{nome:"Êxodo",abbrev:"Êx",cap:40},{nome:"Levítico",abbrev:"Lv",cap:27},
+  {nome:"Números",abbrev:"Nm",cap:36},{nome:"Deuteronômio",abbrev:"Dt",cap:34},{nome:"Josué",abbrev:"Js",cap:24},
+  {nome:"Juízes",abbrev:"Jz",cap:21},{nome:"Rute",abbrev:"Rt",cap:4},{nome:"1 Samuel",abbrev:"1Sm",cap:31},
+  {nome:"2 Samuel",abbrev:"2Sm",cap:24},{nome:"1 Reis",abbrev:"1Rs",cap:22},{nome:"2 Reis",abbrev:"2Rs",cap:25},
+  {nome:"1 Crônicas",abbrev:"1Cr",cap:29},{nome:"2 Crônicas",abbrev:"2Cr",cap:36},{nome:"Esdras",abbrev:"Ed",cap:10},
+  {nome:"Neemias",abbrev:"Ne",cap:13},{nome:"Ester",abbrev:"Et",cap:10},{nome:"Jó",abbrev:"Jó",cap:42},
+  {nome:"Salmos",abbrev:"Sl",cap:150},{nome:"Provérbios",abbrev:"Pv",cap:31},{nome:"Eclesiastes",abbrev:"Ec",cap:12},
+  {nome:"Cânticos",abbrev:"Ct",cap:8},{nome:"Isaías",abbrev:"Is",cap:66},{nome:"Jeremias",abbrev:"Jr",cap:52},
+  {nome:"Lamentações",abbrev:"Lm",cap:5},{nome:"Ezequiel",abbrev:"Ez",cap:48},{nome:"Daniel",abbrev:"Dn",cap:12},
+  {nome:"Oseias",abbrev:"Os",cap:14},{nome:"Joel",abbrev:"Jl",cap:3},{nome:"Amós",abbrev:"Am",cap:9},
+  {nome:"Obadias",abbrev:"Ob",cap:1},{nome:"Jonas",abbrev:"Jn",cap:4},{nome:"Miquéias",abbrev:"Mq",cap:7},
+  {nome:"Naum",abbrev:"Na",cap:3},{nome:"Habacuque",abbrev:"Hc",cap:3},{nome:"Sofonias",abbrev:"Sf",cap:3},
+  {nome:"Ageu",abbrev:"Ag",cap:2},{nome:"Zacarias",abbrev:"Zc",cap:14},{nome:"Malaquias",abbrev:"Ml",cap:4},
+  {nome:"Mateus",abbrev:"Mt",cap:28},{nome:"Marcos",abbrev:"Mc",cap:16},{nome:"Lucas",abbrev:"Lc",cap:24},
+  {nome:"João",abbrev:"Jo",cap:21},{nome:"Atos",abbrev:"At",cap:28},{nome:"Romanos",abbrev:"Rm",cap:16},
+  {nome:"1 Coríntios",abbrev:"1Co",cap:16},{nome:"2 Coríntios",abbrev:"2Co",cap:13},{nome:"Gálatas",abbrev:"Gl",cap:6},
+  {nome:"Efésios",abbrev:"Ef",cap:6},{nome:"Filipenses",abbrev:"Fp",cap:4},{nome:"Colossenses",abbrev:"Cl",cap:4},
+  {nome:"1 Tessalonicenses",abbrev:"1Ts",cap:5},{nome:"2 Tessalonicenses",abbrev:"2Ts",cap:3},
+  {nome:"1 Timóteo",abbrev:"1Tn",cap:6},{nome:"2 Timóteo",abbrev:"2Tm",cap:4},{nome:"Tito",abbrev:"Tt",cap:3},
+  {nome:"Filemon",abbrev:"Fm",cap:1},{nome:"Hebreus",abbrev:"Hb",cap:13},{nome:"Tiago",abbrev:"Tg",cap:5},
+  {nome:"1 Pedro",abbrev:"1Pe",cap:5},{nome:"2 Pedro",abbrev:"2Pe",cap:3},{nome:"1 João",abbrev:"1Jo",cap:5},
+  {nome:"2 João",abbrev:"2Jo",cap:1},{nome:"3 João",abbrev:"3Jo",cap:1},{nome:"Judas",abbrev:"Jd",cap:1},
+  {nome:"Apocalipse",abbrev:"Ap",cap:22}
 ];
 
 let BIBLIA_DATA = null;
@@ -663,7 +663,8 @@ async function carregarBiblia(versao = 'ARA') {
     const data = await r.json();
     BIBLIA_DATA = {};
     data.forEach(livro => {
-      BIBLIA_DATA[livro.abbrev.toLowerCase()] = livro;
+      // Indexa pelo abbrev exato da API (ex: "Êx", "Jó", "1Tn")
+      BIBLIA_DATA[livro.abbrev] = livro;
     });
     return BIBLIA_DATA;
   } catch(e) {
@@ -873,9 +874,7 @@ function showEmpty() {
 }
 
 async function getVerseCount(abbrev, cap) {
-  let a = abbrev === "jo_at" ? "jó" : abbrev.toLowerCase();
-  let livro = BIBLIA_DATA[a];
-  if (!livro && a === "jó") livro = BIBLIA_DATA["jo"];
+  const livro = BIBLIA_DATA[abbrev];
   if (!livro) return 30;
   const cap_data = livro.chapters[cap - 1];
   return cap_data ? cap_data.length : 30;
@@ -965,9 +964,8 @@ async function buscarEPreencherVersiculos(id, abbrev, cap, vi, vf) {
   status.className = 'status-bar';
 
   try {
-    let a = abbrev === "jo_at" ? "jó" : abbrev.toLowerCase();
-    let livroData = BIBLIA_DATA[a];
-    if (!livroData && a === "jó") livroData = BIBLIA_DATA["jo"];
+    const livroData = BIBLIA_DATA[abbrev];
+    if (!livroData) throw new Error('Livro não encontrado: ' + abbrev);
     const capitulo = livroData.chapters[cap - 1];
     
     area.querySelectorAll('.verse-row').forEach(row => {
